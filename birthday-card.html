@@ -5,291 +5,530 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Happy Birthday from BCIS Phuket!</title>
 <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    html, body { min-height: 100%; }
+    :root {
+        --navy: #23293c;
+        --gold: #c9a35c;
+        --ink: #3b3b3b;
+        --sky1: #bfe3ff;
+        --sky2: #e8f6ff;
+        --grass: #a8e6a3;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    html, body { height: 100%; }
     body {
-        font-family: 'Helvetica Neue', Arial, sans-serif;
-        background: #f6f3ee;
-        display: flex;
+        font-family: 'Trebuchet MS', 'Comic Sans MS', 'Chalkboard SE', sans-serif;
+        background: linear-gradient(180deg, #f6f3ee 0%, #efe9dd 100%);
+        overflow: hidden;
+        color: var(--ink);
+    }
+
+    /* ---------- shared cartoon button ---------- */
+    .cbtn {
+        font-family: inherit;
+        font-size: 19px;
+        font-weight: 800;
+        letter-spacing: 1px;
+        color: #fff;
+        background: var(--navy);
+        border: 3px solid #0e1320;
+        border-radius: 999px;
+        padding: 14px 38px;
+        cursor: pointer;
+        box-shadow: 0 6px 0 #0e1320, 0 14px 24px rgba(35,41,60,.25);
+        transition: transform .15s ease, box-shadow .15s ease;
+        user-select: none;
+    }
+    .cbtn:hover { transform: translateY(-2px); box-shadow: 0 8px 0 #0e1320, 0 18px 30px rgba(35,41,60,.3); }
+    .cbtn:active { transform: translateY(4px); box-shadow: 0 2px 0 #0e1320, 0 6px 12px rgba(35,41,60,.2); }
+
+    /* ---------- screens ---------- */
+    .screen { position: absolute; inset: 0; display: none; }
+    .screen.active { display: flex; }
+
+    /* ---------- INTRO ---------- */
+    #intro {
+        flex-direction: column;
         align-items: center;
         justify-content: center;
-        padding: 40px 16px;
-        -webkit-font-smoothing: antialiased;
+        text-align: center;
+        padding: 24px;
+        background: radial-gradient(ellipse at 50% 120%, #fff7e6 0%, #fdf0d7 45%, #f6f3ee 100%);
     }
-    #confetti {
-        position: fixed;
-        inset: 0;
-        width: 100%;
-        height: 100%;
-        pointer-events: none;
-        z-index: 20;
+    #intro .logo { height: 84px; margin-bottom: 18px; filter: drop-shadow(0 6px 14px rgba(35,41,60,.18)); animation: bob 3.4s ease-in-out infinite; }
+    @keyframes bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+    #intro .kicker { font-size: 14px; font-weight: 800; letter-spacing: 6px; color: var(--gold); text-transform: uppercase; margin-bottom: 10px; }
+    #intro h1 { font-size: clamp(34px, 7vw, 56px); line-height: 1.15; color: var(--navy); margin-bottom: 12px; }
+    #intro h1 .cake { display: inline-block; animation: wiggle 2.6s ease-in-out infinite; }
+    @keyframes wiggle { 0%,100% { transform: rotate(-6deg); } 50% { transform: rotate(8deg); } }
+    #intro .sub { font-size: 17px; color: #6b6457; max-width: 420px; line-height: 1.6; margin-bottom: 26px; }
+    #intro .name-in {
+        font-family: inherit; font-size: 18px; font-weight: 700; color: var(--navy);
+        width: 280px; max-width: 80vw; text-align: center; margin: 0 0 12px;
+        padding: 10px 18px; border: 3px solid var(--navy); border-radius: 999px; outline: none;
+        background: #fff; box-shadow: 0 3px 0 rgba(35,41,60,.18);
     }
-    .card {
-        position: relative;
-        width: 100%;
-        max-width: 620px;
-        background: #ffffff;
-        border: 1px solid #e7e0d3;
-        box-shadow: 0 24px 60px rgba(35,41,60,.12);
-        overflow: hidden;
+    #intro .name-in::placeholder { color: #b7ad9c; font-weight: 600; }
+    #intro .tagline { margin-top: 26px; font-size: 12px; letter-spacing: 4px; color: #a79e8d; text-transform: uppercase; }
+    #intro .float { position: absolute; font-size: 30px; opacity: .5; pointer-events: none; animation: riseUp 8s linear infinite; }
+    @keyframes riseUp {
+        0%   { transform: translateY(110vh) rotate(0deg); opacity: 0; }
+        10%  { opacity: .55; }
+        90%  { opacity: .55; }
+        100% { transform: translateY(-15vh) rotate(160deg); opacity: 0; }
+    }
+
+    /* ---------- GAME ---------- */
+    #game { flex-direction: column; background: linear-gradient(180deg, var(--sky1) 0%, var(--sky2) 70%, #d8f2cf 100%); }
+    .topbar {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 10px 18px; background: rgba(255,255,255,.72); border-bottom: 3px solid rgba(35,41,60,.12);
+        z-index: 5;
+    }
+    .topbar .mini { display: flex; align-items: center; gap: 10px; }
+    .topbar .mini img { height: 30px; }
+    .topbar .mini span { font-size: 14px; font-weight: 800; color: var(--navy); letter-spacing: .5px; }
+    .hud { display: flex; align-items: center; gap: 14px; }
+    .hud .count { font-size: 15px; font-weight: 800; color: var(--navy); background: #fff; border: 3px solid var(--navy); border-radius: 999px; padding: 5px 14px; }
+    .hud .mute {
+        width: 40px; height: 40px; border-radius: 50%; border: 3px solid var(--navy); background: #fff;
+        font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+    }
+    #scene { position: relative; flex: 1; overflow: hidden; }
+    .sun {
+        position: absolute; top: 6%; right: 6%; width: 74px; height: 74px; border-radius: 50%;
+        background: radial-gradient(circle, #ffe9a8, #ffd76e 70%);
+        box-shadow: 0 0 70px rgba(255,215,110,.85); z-index: 1;
+    }
+    .sun::after {
+        content: ''; position: absolute; inset: -16px; border-radius: 50%;
+        background: repeating-conic-gradient(rgba(255,215,110,.45) 0 9deg, transparent 9deg 20deg);
+        animation: spin 40s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .cloud {
+        position: absolute; height: 34px; width: 120px; background: #fff; border-radius: 40px; z-index: 1; opacity: .92;
+        animation: drift 46s linear infinite;
+    }
+    .cloud::before, .cloud::after { content: ''; position: absolute; background: #fff; border-radius: 50%; }
+    .cloud::before { width: 44px; height: 44px; top: -22px; left: 20px; }
+    .cloud::after  { width: 30px; height: 30px; top: -12px; left: 62px; }
+    @keyframes drift { from { transform: translateX(-180px); } to { transform: translateX(calc(100vw + 180px)); } }
+    .grass {
+        position: absolute; bottom: -46px; left: -5%; width: 110%; height: 130px; z-index: 1;
+        background: var(--grass); border-radius: 50% 50% 0 0 / 60px 60px 0 0;
+    }
+    .grass::before {
+        content: ''; position: absolute; top: -26px; left: 12%; width: 70%; height: 60px;
+        background: #bdeeba; border-radius: 50%;
+    }
+    .wish-hint {
+        position: absolute; top: 3%; left: 50%; transform: translateX(-50%); z-index: 4;
+        background: rgba(255,255,255,.85); border: 3px solid var(--navy); border-radius: 999px;
+        padding: 7px 20px; font-size: 14px; font-weight: 800; color: var(--navy);
+        white-space: nowrap; box-shadow: 0 4px 10px rgba(35,41,60,.15);
+    }
+
+    /* balloon */
+    .balloon { position: absolute; cursor: pointer; z-index: 3; user-select: none; touch-action: none; }
+    .balloon-body {
+        position: relative; width: 88px; height: 106px;
+        border-radius: 50% 50% 50% 50% / 58% 58% 42% 42%;
+        border: 3px solid var(--navy);
+        box-shadow: inset -9px -11px 0 rgba(0,0,0,.06), inset 12px 14px 0 rgba(255,255,255,.38);
+        transition: transform .18s ease;
+    }
+    .balloon:hover .balloon-body { transform: scale(1.09) rotate(-2deg); }
+    .balloon-body::before {
+        content: ''; position: absolute; top: 15px; left: 17px; width: 20px; height: 27px;
+        background: rgba(255,255,255,.6); border-radius: 50%; transform: rotate(-28deg);
+    }
+    .balloon-body::after {
+        content: ''; position: absolute; bottom: -11px; left: 50%; transform: translateX(-50%);
+        border: 9px solid transparent; border-top: 11px solid var(--navy);
+    }
+    .string {
+        position: absolute; top: 100%; left: 50%; width: 2px; height: 48px;
+        background: rgba(47,54,64,.5); border-radius: 2px; transform: translateX(-50%);
+    }
+    .balloon .glyph {
+        position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+        font-size: 34px; z-index: 2; pointer-events: none; transform: translateY(-6px);
+    }
+
+    /* pop burst */
+    .burst { position: absolute; z-index: 6; pointer-events: none; }
+    .burst span {
+        position: absolute; left: 0; top: 0; width: 11px; height: 11px; border-radius: 50%;
+        border: 2px solid rgba(35,41,60,.5);
+        animation: fly .55s ease-out forwards;
+    }
+    @keyframes fly { to { transform: translate(var(--dx), var(--dy)) scale(.3); opacity: 0; } }
+    .pop-text {
+        position: absolute; z-index: 7; font-size: 30px; font-weight: 900; color: var(--navy);
+        transform: translate(-50%, -50%); pointer-events: none;
+        animation: popup .7s ease-out forwards; text-shadow: 0 2px 0 #fff;
+    }
+    @keyframes popup { 0% { transform: translate(-50%,-50%) scale(.4); opacity: 0; } 20% { opacity: 1; transform: translate(-50%,-50%) scale(1.25); } 100% { transform: translate(-50%,-90%) scale(1); opacity: 0; } }
+
+    /* wish bar */
+    #wishbar {
+        display: flex; flex-wrap: wrap; gap: 8px; justify-content: center;
+        min-height: 66px; padding: 10px 14px 14px; z-index: 5;
+        background: rgba(255,255,255,.82); border-top: 3px solid rgba(35,41,60,.12);
+    }
+    .chip {
+        display: inline-flex; align-items: center; gap: 7px;
+        background: #fff; border: 2.5px solid var(--navy); border-radius: 999px;
+        padding: 7px 15px; font-size: 13.5px; font-weight: 700; color: var(--navy);
+        box-shadow: 0 3px 0 rgba(35,41,60,.18);
+        animation: chipIn .45s cubic-bezier(.34,1.56,.64,1) both;
+    }
+    @keyframes chipIn { from { transform: translateY(18px) scale(.6); opacity: 0; } to { transform: translateY(0) scale(1); opacity: 1; } }
+
+    /* ---------- CELEBRATION ---------- */
+    #celebrate {
+        flex-direction: column; align-items: center; justify-content: center; text-align: center;
+        padding: 26px; background: linear-gradient(180deg, #fff7e6 0%, #fdf0d7 60%, #f6f3ee 100%);
         z-index: 10;
     }
-    .gold-top { height: 4px; background: #c9a35c; }
-    .banner {
-        height: 210px;
-        background: #f6ecdb url('https://raw.githubusercontent.com/IncenseHou/bcis-assets/refs/heads/main/Outlook%E7%94%9F%E6%97%A5%E9%82%AE%E4%BB%B6%E8%AE%BE%E8%AE%A1.png') no-repeat center center / cover;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+    #celebrate .logo { height: 70px; margin-bottom: 16px; }
+    #celebrate h1 { font-size: clamp(32px, 6.5vw, 52px); color: var(--navy); margin-bottom: 6px; }
+    #celebrate .cake-big { font-size: clamp(72px, 14vw, 110px); display: inline-block; animation: wiggle 3s ease-in-out infinite; margin: 14px 0; filter: drop-shadow(0 14px 20px rgba(35,41,60,.25)); }
+    #celebrate .wishes-done { list-style: none; margin: 12px 0 22px; max-width: 460px; }
+    #celebrate .wishes-done li {
+        font-size: 15.5px; font-weight: 700; color: var(--navy);
+        background: #fff; border: 2.5px solid var(--gold); border-radius: 999px;
+        padding: 9px 20px; margin: 7px 0; text-align: left;
+        animation: chipIn .5s cubic-bezier(.34,1.56,.64,1) both;
     }
-    .banner img { height: 100px; width: auto; filter: drop-shadow(0 4px 12px rgba(35,41,60,.15)); }
-    .header {
-        background: linear-gradient(180deg, #f3e9d4 0%, #faf5e9 60%);
-        text-align: center;
-        padding: 30px 40px 20px;
-    }
-    .kicker {
-        font-size: 12px;
-        font-weight: 600;
-        letter-spacing: 5px;
-        color: #b0893f;
-        text-transform: uppercase;
-        margin-bottom: 12px;
-    }
-    h1 {
-        font-family: Georgia, 'Times New Roman', serif;
-        font-size: 36px;
-        font-weight: normal;
-        line-height: 1.3;
-        color: #23293c;
-        transition: text-shadow .4s ease;
-    }
-    h1:hover { text-shadow: 0 0 24px rgba(201,163,92,.55); }
-    .ornament {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 12px;
-        margin-top: 18px;
-        color: #b0893f;
-        font-size: 14px;
-    }
-    .ornament::before, .ornament::after {
-        content: '';
-        width: 46px;
-        border-top: 1px solid #e3d5b2;
-    }
-    .ornament .star {
-        animation: twinkle 3.2s ease-in-out infinite;
-    }
-    @keyframes twinkle { 0%,100% { opacity: 1; } 50% { opacity: .3; } }
-    .content { padding: 34px 46px 30px; color: #3f3b35; font-size: 15px; line-height: 1.9; }
-    .content p { margin-bottom: 18px; }
-    .wishes { list-style: none; margin: 4px 0 22px; }
-    .wishes li {
-        display: flex;
-        gap: 12px;
-        align-items: flex-start;
-        margin-bottom: 8px;
-        padding: 6px 10px 6px 6px;
-        border-radius: 8px;
-        cursor: default;
-        transition: background .3s ease, transform .3s ease;
-    }
-    .wishes li:hover { background: #faf5e9; transform: translateX(4px); }
-    .wishes li::before {
-        content: '✦';
-        color: #b0893f;
-        font-family: Georgia, serif;
-        line-height: 1.9;
-    }
-    .cta {
-        text-align: center;
-        margin: 26px 0 30px;
-    }
-    .cta a {
-        display: inline-block;
-        color: #b0893f;
-        text-decoration: none;
-        border: 1px solid #d9c08a;
-        padding: 10px 26px;
-        border-radius: 30px;
-        letter-spacing: 1px;
-        font-size: 13px;
-        transition: all .3s ease;
-    }
-    .cta a:hover { background: #b0893f; color: #fff; border-color: #b0893f; transform: translateY(-2px); box-shadow: 0 8px 20px rgba(176,137,63,.3); }
-    .signature { text-align: center; padding: 6px 0 0; }
-    .signature a img { height: 48px; transition: opacity .35s ease; }
-    .signature a:hover img { opacity: .78; }
-    .signature .name {
-        font-family: Georgia, 'Times New Roman', serif;
-        font-size: 19px;
-        letter-spacing: 1px;
-        color: #23293c;
-        text-decoration: none;
-        display: block;
-        margin-top: 12px;
-        transition: color .35s ease;
-    }
-    .signature .name:hover { color: #b0893f; }
-    .signature .tag {
-        font-size: 11px;
-        letter-spacing: 4px;
-        color: #a79e8d;
-        text-transform: uppercase;
-        margin-top: 5px;
-    }
-    .footer {
-        margin-top: 30px;
-        border-top: 2px solid #c9a35c;
-        background: #faf5e9;
-        text-align: center;
-        padding: 18px 20px;
-        font-size: 12px;
-        letter-spacing: 1px;
-        color: #8a8172;
-    }
-    .floaters { position: absolute; inset: 0; pointer-events: none; z-index: 5; }
-    .fl {
-        position: absolute;
-        font-size: 26px;
-        opacity: .85;
-        animation: rise 7s ease-in-out infinite;
-    }
-    @keyframes rise {
-        0% { transform: translateY(30px) rotate(0deg); opacity: 0; }
-        12% { opacity: .85; }
-        88% { opacity: .85; }
-        100% { transform: translateY(-420px) rotate(200deg); opacity: 0; }
-    }
+    #celebrate .wishes-done li span { margin-right: 8px; }
+    #celebrate .school { margin-top: 8px; }
+    #celebrate .school .name { font-size: 19px; font-weight: 900; color: var(--navy); letter-spacing: 1px; }
+    #celebrate .school .tag { font-size: 11px; letter-spacing: 4px; color: #a79e8d; text-transform: uppercase; margin-top: 3px; }
+
+    #confetti { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 50; }
+
     @media (max-width: 640px) {
-        body { padding: 20px 10px; }
-        .banner { height: 150px; }
-        .banner img { height: 70px; }
-        .header { padding: 22px 22px 16px; }
-        h1 { font-size: 27px; }
-        .content { padding: 26px 24px 24px; }
+        .balloon-body { width: 72px; height: 88px; }
+        .balloon .glyph { font-size: 27px; }
+        .wish-hint { font-size: 12.5px; padding: 6px 14px; }
+        .topbar { padding: 8px 12px; }
+        .hud .count { font-size: 13px; padding: 4px 11px; }
     }
 </style>
 </head>
 <body>
+
 <canvas id="confetti"></canvas>
 
-<div class="card">
-    <div class="gold-top"></div>
-    <div class="banner">
-        <img src="https://raw.githubusercontent.com/IncenseHou/bcis-assets/refs/heads/main/logo.png" alt="BCIS Phuket">
-    </div>
-    <div class="header">
-        <div class="kicker">A Very Special Day</div>
-        <h1 id="greeting">Happy Birthday!</h1>
-        <div class="ornament"><span class="star">✦</span></div>
-    </div>
-    <div class="content">
-        <p id="dear">Dear friend,</p>
-        <p>On this wonderful day, we at BCIS Phuket send you our warmest wishes. May the year ahead be filled with:</p>
-        <ul class="wishes">
-            <li>Joyful moments shared with those you love</li>
-            <li>New opportunities for growth and discovery</li>
-            <li>Success in every endeavor you pursue</li>
-        </ul>
-        <p>Thank you for being an invaluable part of our global community. Enjoy every moment of your special day!</p>
-        <div class="cta"><a href="#" onclick="burst(); return false;">Celebrate &nbsp;🎉</a></div>
-        <div class="signature">
-            <a href="https://www.bcisphuket.ac.th/"><img src="https://www.bcisphuket.ac.th/VNTH%20-%20Berda%20Claude%20International%20School/berda-logo.png" alt="BCIS Phuket"></a>
-            <a class="name" href="https://www.bcisphuket.ac.th/">BCIS Phuket</a>
-            <div class="tag">Global Learning Community</div>
+<!-- ================= INTRO ================= -->
+<section id="intro" class="screen active">
+    <img class="logo" src="https://raw.githubusercontent.com/IncenseHou/bcis-assets/refs/heads/main/logo.png" alt="BCIS Phuket">
+    <div class="kicker">BCIS Phuket presents</div>
+    <h1 id="introTitle">Happy Birthday! <span class="cake">🎂</span></h1>
+    <input id="nameInput" class="name-in" placeholder="Type the recipient's name" autocomplete="off" style="display:none;">
+    <p class="sub">We've hidden <b>3 birthday wishes</b> inside the floating balloons.<br>Tap the balloons to pop them and collect every wish!</p>
+    <button class="cbtn" id="startBtn">🎈 Start the Party</button>
+    <div class="tagline">Global Learning Community</div>
+    <span class="float" style="left:6%;  animation-delay:0s;">🎉</span>
+    <span class="float" style="left:20%; animation-delay:1.2s;">✨</span>
+    <span class="float" style="left:36%; animation-delay:.4s;">🎈</span>
+    <span class="float" style="left:52%; animation-delay:2s;">🎁</span>
+    <span class="float" style="left:68%; animation-delay:.9s;">🎊</span>
+    <span class="float" style="left:84%; animation-delay:1.6s;">🎂</span>
+</section>
+
+<!-- ================= GAME ================= -->
+<section id="game" class="screen">
+    <div class="topbar">
+        <div class="mini">
+            <img src="https://raw.githubusercontent.com/IncenseHou/bcis-assets/refs/heads/main/logo.png" alt="BCIS">
+            <span>BCIS Phuket</span>
+        </div>
+        <div class="hud">
+            <div class="count">Wishes <b id="found">0</b>/3</div>
+            <button class="mute" id="muteBtn" title="Sound on/off">🔊</button>
         </div>
     </div>
-    <div class="footer">With warmest wishes from the BCIS Phuket family</div>
-
-    <div class="floaters">
-        <span class="fl" style="left:6%;  animation-delay:.2s;">🎉</span>
-        <span class="fl" style="left:18%; animation-delay:1.4s;">✨</span>
-        <span class="fl" style="left:32%; animation-delay:.8s;">🎈</span>
-        <span class="fl" style="left:48%; animation-delay:2.1s;">✨</span>
-        <span class="fl" style="left:62%; animation-delay:.5s;">🎊</span>
-        <span class="fl" style="left:76%; animation-delay:1.8s;">🎉</span>
-        <span class="fl" style="left:90%; animation-delay:1.1s;">🎂</span>
+    <div id="scene">
+        <div class="sun"></div>
+        <div class="cloud" style="top:12%; animation-duration:52s;"></div>
+        <div class="cloud" style="top:26%; left:30%; animation-duration:70s; transform:scale(.8);"></div>
+        <div class="grass"></div>
+        <div class="wish-hint" id="hint">🎈 Tap the balloons to find your wishes!</div>
     </div>
-</div>
+    <div id="wishbar"></div>
+</section>
+
+<!-- ================= CELEBRATION ================= -->
+<section id="celebrate" class="screen">
+    <img class="logo" src="https://raw.githubusercontent.com/IncenseHou/bcis-assets/refs/heads/main/logo.png" alt="BCIS Phuket">
+    <h1 id="celeTitle">Happy Birthday! 🎉</h1>
+    <div class="cake-big">🎂</div>
+    <p style="font-size:16px;color:#6b6457;margin-bottom:4px;">All wishes collected — may every one come true!</p>
+    <ul class="wishes-done" id="wishesDone"></ul>
+    <button class="cbtn" id="replayBtn">🔄 Celebrate Again</button>
+    <div class="school">
+        <div class="name">BCIS Phuket</div>
+        <div class="tag">Global Learning Community</div>
+    </div>
+</section>
 
 <script>
-    // ---- Personalize with ?name= ----
-    (function () {
-        var raw = new URLSearchParams(location.search).get('name') || '';
-        var name = decodeURIComponent(raw.replace(/\+/g, ' ')).trim();
-        if (name) {
-            document.getElementById('greeting').textContent = 'Happy Birthday, ' + name + '!';
-            document.getElementById('dear').textContent = 'Dear ' + name + ',';
-            document.title = 'Happy Birthday, ' + name + '!';
-        }
-    })();
+    /* ---------------- personalization ---------------- */
+    function esc(s) {
+        return s.replace(/[&<>"']/g, function (c) {
+            return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+        });
+    }
+    var raw = new URLSearchParams(location.search).get('name') || '';
+    var NAME = decodeURIComponent(raw.replace(/\+/g, ' ')).trim();
+    var introTitle = document.getElementById('introTitle');
+    var celeTitle = document.getElementById('celeTitle');
+    var nameInput = document.getElementById('nameInput');
+    function applyName() {
+        var safe = esc(NAME);
+        introTitle.innerHTML = NAME
+            ? 'Happy Birthday, <span style="color:var(--gold);">' + safe + '</span>! <span class="cake">🎂</span>'
+            : 'Happy Birthday! <span class="cake">🎂</span>';
+        celeTitle.innerHTML = NAME ? 'Happy Birthday, <span style="color:var(--gold);">' + safe + '</span>! 🎉' : 'Happy Birthday! 🎉';
+        document.title = NAME ? 'Happy Birthday, ' + NAME + '!' : 'Happy Birthday from BCIS Phuket!';
+    }
+    if (!NAME) {
+        nameInput.style.display = 'block';
+        nameInput.addEventListener('input', function () { NAME = this.value.trim(); applyName(); });
+    }
+    applyName();
 
-    // ---- Confetti ----
-    var canvas = document.getElementById('confetti');
-    var ctx = canvas.getContext('2d');
-    var W, H, pieces = [], running = false, bursts = 0;
+    /* ---------------- data ---------------- */
+    var WISHES = [
+        { e: '🌟', t: 'Joyful moments shared with those you love' },
+        { e: '🚀', t: 'New opportunities for growth and discovery' },
+        { e: '🎯', t: 'Success in every endeavor you pursue' }
+    ];
+    var BALLOON_COLORS = ['#ff8fa3', '#ffd76e', '#8fd3ff', '#b39ddb', '#ffb46e', '#a3e4c1'];
+    var FUN_GLYPHS = ['🎉', '✨', '🎊', '💖', '⭐'];
 
-    var COLORS = ['#c9a35c', '#d98a8a', '#8fb3a5', '#23293c', '#f2d48a', '#ffffff'];
-
-    function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
-    window.addEventListener('resize', resize); resize();
-
-    function makePiece(burst) {
-        var angle = burst ? Math.random() * Math.PI * 2 : -Math.PI / 2 + (Math.random() - .5) * 0.6;
-        var speed = burst ? 6 + Math.random() * 9 : 2 + Math.random() * 4;
-        return {
-            x: burst ? W / 2 : Math.random() * W,
-            y: burst ? H / 2 : -20 - Math.random() * H * 0.6,
-            vx: Math.cos(angle) * speed,
-            vy: Math.sin(angle) * speed,
-            w: 5 + Math.random() * 6,
-            h: 8 + Math.random() * 10,
-            color: COLORS[Math.floor(Math.random() * COLORS.length)],
-            rot: Math.random() * Math.PI * 2,
-            vr: (Math.random() - .5) * 0.3,
-            life: 1
-        };
+    /* ---------------- audio (WebAudio, no files) ---------------- */
+    var actx = null, muted = false;
+    function audio() {
+        if (!actx) { try { actx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) {} }
+        if (actx && actx.state === 'suspended') actx.resume();
+        return actx;
+    }
+    function blip(freq, dur, type, vol, when) {
+        if (muted || !actx) return;
+        var t = actx.currentTime + (when || 0);
+        var o = actx.createOscillator(), g = actx.createGain();
+        o.type = type || 'triangle'; o.frequency.setValueAtTime(freq, t);
+        o.frequency.exponentialRampToValueAtTime(Math.max(40, freq * .25), t + dur);
+        g.gain.setValueAtTime(vol || .18, t);
+        g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+        o.connect(g); g.connect(actx.destination);
+        o.start(t); o.stop(t + dur + .02);
+    }
+    function sPop()   { blip(520, .16, 'triangle', .22); blip(180, .1, 'square', .08); }
+    function sFound() { blip(660, .14, 'triangle', .2); blip(880, .22, 'triangle', .18, .09); }
+    function sFanfare() {
+        [523, 659, 784, 1047, 1319].forEach(function (f, i) { blip(f, .5, 'triangle', .16, i * .13); });
     }
 
+    /* ---------------- screens ---------------- */
+    function show(id) {
+        ['intro', 'game', 'celebrate'].forEach(function (s) {
+            document.getElementById(s).classList.toggle('active', s === id);
+        });
+    }
+
+    document.getElementById('startBtn').addEventListener('click', function () {
+        audio(); sPop(); show('game'); startGame();
+    });
+    document.getElementById('replayBtn').addEventListener('click', function () {
+        audio(); sFanfare(); show('intro');
+    });
+    document.getElementById('muteBtn').addEventListener('click', function () {
+        muted = !muted;
+        this.textContent = muted ? '🔇' : '🔊';
+    });
+
+    /* ---------------- confetti ---------------- */
+    var canvas = document.getElementById('confetti');
+    var ctx = canvas.getContext('2d');
+    var W, H, parts = [], running = false;
+    var C_COLORS = ['#ff8fa3', '#ffd76e', '#8fd3ff', '#b39ddb', '#c9a35c', '#a3e4c1', '#23293c', '#ffffff'];
+    function resize() { W = canvas.width = innerWidth; H = canvas.height = innerHeight; }
+    addEventListener('resize', resize); resize();
+    function confettiBurst(n, cx, cy, force) {
+        for (var i = 0; i < n; i++) {
+            var a = force ? Math.random() * Math.PI * 2 : -Math.PI / 2 + (Math.random() - .5) * 1.1;
+            var sp = force ? 5 + Math.random() * 10 : 2.5 + Math.random() * 5;
+            parts.push({
+                x: cx == null ? Math.random() * W : cx, y: cy == null ? -15 : cy,
+                vx: Math.cos(a) * sp, vy: Math.sin(a) * sp,
+                w: 5 + Math.random() * 7, h: 8 + Math.random() * 11,
+                c: C_COLORS[(Math.random() * C_COLORS.length) | 0],
+                r: Math.random() * Math.PI * 2, vr: (Math.random() - .5) * .3,
+                life: 1
+            });
+        }
+        if (!running) { running = true; step(); }
+    }
     function step() {
         ctx.clearRect(0, 0, W, H);
-        for (var i = pieces.length - 1; i >= 0; i--) {
-            var p = pieces[i];
-            p.x += p.vx; p.y += p.vy;
-            p.vy += 0.06; p.rot += p.vr;
-            p.life -= 0.004;
-            if (p.y > H + 30 || p.life <= 0) { pieces.splice(i, 1); continue; }
-            ctx.save();
-            ctx.globalAlpha = Math.max(0, Math.min(1, p.life));
-            ctx.translate(p.x, p.y);
-            ctx.rotate(p.rot);
-            ctx.fillStyle = p.color;
-            ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
-            ctx.restore();
+        for (var i = parts.length - 1; i >= 0; i--) {
+            var p = parts[i];
+            p.x += p.vx; p.y += p.vy; p.vy += .05; p.r += p.vr; p.life -= .004;
+            if (p.y > H + 40 || p.life <= 0) { parts.splice(i, 1); continue; }
+            ctx.save(); ctx.globalAlpha = Math.max(0, Math.min(1, p.life));
+            ctx.translate(p.x, p.y); ctx.rotate(p.r); ctx.fillStyle = p.c;
+            ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h); ctx.restore();
         }
-        if (pieces.length) requestAnimationFrame(step);
+        if (parts.length) requestAnimationFrame(step);
         else { running = false; ctx.clearRect(0, 0, W, H); }
     }
 
-    function burst() {
-        for (var i = 0; i < 160; i++) pieces.push(makePiece(true));
-        if (!running) { running = true; step(); }
+    /* ---------------- balloon game ---------------- */
+    var scene = document.getElementById('scene');
+    var foundCount = 0, foundSet = {}, balloons = [], spawnTimer = null, animRaf = null;
+    var S_WISHES_LEFT = [0, 1, 2];
+
+    function makeBalloon() {
+        var el = document.createElement('div');
+        el.className = 'balloon';
+        var isWish = S_WISHES_LEFT.length > 0 && Math.random() < .55;
+        var idx = isWish ? S_WISHES_LEFT[(Math.random() * S_WISHES_LEFT.length) | 0] : -1;
+        if (idx >= 0) { el.dataset.wish = idx; }
+        var color = BALLOON_COLORS[(Math.random() * BALLOON_COLORS.length) | 0];
+        var glyph = idx >= 0 ? WISHES[idx].e : FUN_GLYPHS[(Math.random() * FUN_GLYPHS.length) | 0];
+        el.innerHTML = '<div class="balloon-body" style="background:' + color + ';"></div><div class="string"></div><div class="glyph">' + glyph + '</div>';
+        var rect = scene.getBoundingClientRect();
+        var size = .8 + Math.random() * .5;
+        el.style.transform = 'scale(' + size + ')';
+        var b = {
+            el: el, x: rect.width * (.06 + Math.random() * .88),
+            y: rect.height + 90, vy: 48 + Math.random() * 46,
+            sway: 14 + Math.random() * 22, phase: Math.random() * Math.PI * 2,
+            freq: .6 + Math.random() * .8, wish: idx, dead: false
+        };
+        el.style.left = '0px'; el.style.top = '0px';
+        el.addEventListener('pointerdown', function (ev) { ev.preventDefault(); popBalloon(b); });
+        scene.appendChild(el);
+        balloons.push(b);
     }
 
-    // gentle opening rain
-    var opener = 0;
-    var openTimer = setInterval(function () {
-        pieces.push(makePiece(false));
-        if (++opener >= 140) clearInterval(openTimer);
-    }, 60);
-    if (!running) { running = true; step(); }
+    function popBalloon(b) {
+        if (b.dead) return;
+        b.dead = true;
+        audio(); sPop();
+        var cx = b.x, cy = b.y;
+        /* burst particles */
+        var burst = document.createElement('div');
+        burst.className = 'burst';
+        burst.style.left = cx + 'px'; burst.style.top = cy + 'px';
+        for (var i = 0; i < 12; i++) {
+            var s = document.createElement('span');
+            var a = Math.random() * Math.PI * 2, sp = 60 + Math.random() * 120;
+            s.style.background = BALLOON_COLORS[(Math.random() * BALLOON_COLORS.length) | 0];
+            s.style.setProperty('--dx', Math.cos(a) * sp + 'px');
+            s.style.setProperty('--dy', Math.sin(a) * sp + 'px');
+            burst.appendChild(s);
+        }
+        scene.appendChild(burst);
+        setTimeout(function () { burst.remove(); }, 600);
 
-    // hover the card → a little sparkle; click button → big burst
-    document.querySelector('.card').addEventListener('mouseenter', function () { for (var i = 0; i < 24; i++) pieces.push(makePiece(false)); });
-    document.querySelector('.cta a').addEventListener('click', burst);
+        var pt = document.createElement('div');
+        pt.className = 'pop-text';
+        pt.textContent = b.wish >= 0 ? WISHES[b.wish].e : 'POP!';
+        pt.style.left = cx + 'px'; pt.style.top = cy + 'px';
+        scene.appendChild(pt);
+        setTimeout(function () { pt.remove(); }, 700);
+
+        b.el.remove();
+
+        if (b.wish >= 0 && !foundSet[b.wish]) {
+            foundSet[b.wish] = true;
+            foundCount++;
+            document.getElementById('found').textContent = foundCount;
+            addChip(b.wish);
+            audio(); sFound();
+            var k = S_WISHES_LEFT.indexOf(b.wish);
+            if (k >= 0) S_WISHES_LEFT.splice(k, 1);
+            if (foundCount === WISHES.length) {
+                setTimeout(celebrate, 900);
+            }
+        }
+    }
+
+    function addChip(idx) {
+        var bar = document.getElementById('wishbar');
+        var chip = document.createElement('div');
+        chip.className = 'chip';
+        chip.innerHTML = '<span>' + WISHES[idx].e + '</span>' + WISHES[idx].t;
+        bar.appendChild(chip);
+    }
+
+    function startGame() {
+        /* reset */
+        foundCount = 0; foundSet = {}; S_WISHES_LEFT = [0, 1, 2];
+        document.getElementById('found').textContent = '0';
+        document.getElementById('wishbar').innerHTML = '';
+        balloons.forEach(function (b) { b.el.remove(); });
+        balloons = [];
+        scene.querySelectorAll('.burst, .pop-text').forEach(function (n) { n.remove(); });
+
+        spawnTimer = setInterval(function () {
+            if (balloons.length < 14) makeBalloon();
+        }, 320);
+
+        cancelAnimationFrame(animRaf);
+        (function loop() {
+            animRaf = requestAnimationFrame(loop);
+            var rect = scene.getBoundingClientRect();
+            var t = performance.now() / 1000;
+            for (var i = balloons.length - 1; i >= 0; i--) {
+                var b = balloons[i];
+                b.y -= b.vy * .016;
+                if (b.y < -140) { b.el.remove(); balloons.splice(i, 1); continue; }
+                b.el.style.left = (b.x + Math.sin(t * b.freq + b.phase) * b.sway) + 'px';
+                b.el.style.top = b.y + 'px';
+            }
+        })();
+    }
+
+    function celebrate() {
+        clearInterval(spawnTimer);
+        balloons.forEach(function (b) { b.el.remove(); });
+        balloons = [];
+        var list = document.getElementById('wishesDone');
+        list.innerHTML = '';
+        WISHES.forEach(function (w, i) {
+            var li = document.createElement('li');
+            li.style.animationDelay = (i * .12) + 's';
+            li.innerHTML = '<span>' + w.e + '</span>' + w.t;
+            list.appendChild(li);
+        });
+        show('celebrate');
+        audio(); sFanfare();
+        confettiBurst(160);
+        setTimeout(function () { confettiBurst(90, W / 2, H * .4, true); }, 700);
+        setTimeout(function () { confettiBurst(90, W * .3, H * .3, true); }, 1400);
+        setTimeout(function () { confettiBurst(90, W * .7, H * .3, true); }, 2100);
+    }
+
+    /* auto-demo mode for preview: ?demo=1 */
+    if (/[?&]demo=1/.test(location.search)) {
+        document.addEventListener('DOMContentLoaded', function () {
+            setTimeout(function () {
+                show('game'); startGame();
+                var auto = setInterval(function () {
+                    var wishies = balloons.filter(function (b) { return b.wish >= 0 && !b.dead; });
+                    var target = wishies.length ? wishies[0] : (balloons[0]);
+                    if (target) popBalloon(target);
+                    if (foundCount >= WISHES.length) clearInterval(auto);
+                }, 750);
+            }, 400);
+        });
+    }
 </script>
 </body>
 </html>
